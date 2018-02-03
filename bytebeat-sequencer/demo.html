@@ -147,20 +147,23 @@
       /// -- bytebeat sequencer -- ///
       
 A=new AudioContext()
-N=[1]
+N=[1,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1]
 
 
 // onclick:
-_pitch=8
-_freq=8
+_pitch=4
+_freq=4
 _adsr=-1
-S=`(n=1<<(t/${_pitch*256}&31))`
-for(i=9;i--;){
+//S=`(n=1<<(t/${_pitch*256}&31))` // before looping?
+for(i=0;i<9;i++){
   n=0
-  for(j=32;j--;)
-    n|=N[i*j]&&1<<j
-  S+=`&(${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})|`
+  for(j=32;j--;/*console.log(n,i,j,i*9+j,N[i*9+j])*/)
+    n|=N[i*32+j]&&1<<j
+  console.log(n,n.toString(2))
+
+  S=`${i?S+`(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})|`
 }
+M=eval(`t=>`+S.substr(0,S.length-1))
 console.log(S)
 
 
@@ -169,8 +172,9 @@ with(A.createScriptProcessor(256,T=0,1))
   connect(A.destination),
   onaudioprocess=t=>{
     for(t=t.outputBuffer.getChannelData(v=0);v<256;)
-      //t[v++]=M(T+=8e3/A.sampleRate)%256/255
-      t[v++]=eval(S)((T+=8e3/A.sampleRate)%256/255)
+      t[v++]=M(T+=8e3/A.sampleRate)%256/255
+      //t[v++]=(eval(S)(T+=8e3/A.sampleRate))%256/255
+
   }
 
       // END
