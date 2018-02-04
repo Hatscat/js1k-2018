@@ -145,25 +145,29 @@
       console.log('demo here', window.a, b, window.c, window.g, window.d);
 
       /// -- bytebeat sequencer -- ///
-      
+
+
+b.innerHTML+=``
+
 A=new AudioContext()
-N=[1,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1]
+N=[0]//[1,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1]
+//N[42] = 1
 
 
 // onclick:
 _pitch=4
 _freq=4
 _adsr=-1
-//S=`(n=1<<(t/${_pitch*256}&31))` // before looping?
-for(i=0;i<9;i++){
+//S=`(p=1<<(t/${_pitch*256}&31))` // before looping?
+for(S=i=0;i<9;i++){
   n=0
-  for(j=32;j--;/*console.log(n,i,j,i*9+j,N[i*9+j])*/)
+  for(j=32;j--;)
     n|=N[i*32+j]&&1<<j
   console.log(n,n.toString(2))
-
-  S=`${i?S+`(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})|`
+  if(n)
+    S=`${i?S+`|(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})`
 }
-M=eval(`t=>`+S.substr(0,S.length-1))
+M=eval(`t=>`+S)
 console.log(S)
 
 
