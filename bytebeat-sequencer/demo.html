@@ -95,7 +95,7 @@
 
       a = canvas;
       b = idoc.body;
-      d = idoc.document;
+      d = idoc//.document;
 
       if (!TOKEN_WEBGL) iwin.c = canvas.getContext('2d');
       else iwin.g = (function () {
@@ -125,7 +125,7 @@
       // submission form configurables:
 
       // enable canvas shim at all? (2d/3d). other settings are ignored if this is false.
-      var TOKEN_CANVAS_SHIM = true;
+      var TOKEN_CANVAS_SHIM = false;
       // true enables webgl shim (exposes `g`), false enables canvas shim (exposes `c`)
       var TOKEN_WEBGL = false;
       // px, 0 means always 100%
@@ -142,34 +142,56 @@
     <script type="demo">
       // THIS IS WHERE YOUR DEMO GOES
 
-      console.log('demo here', window.a, b, window.c, window.g, window.d);
-
+      console.log('demo here', window.a, window.b, window.c, window.g, window.d, document);
+      d=document
       /// -- bytebeat sequencer -- ///
 
+cw=innerWidth/40|0
+ch=innerHeight/20|0
 
-b.innerHTML+=``
+N=[] // notes
+
+n=`<input style=width:${cw};margin:7 type=number value=4 `
+i=``
+for(y=12;y--;)
+    for(x=40;x--;i+=`<div style=position:fixed;width:${cw}px;height:${ch}px;left:${x*cw}px;top:${y*ch}px;${x>5&&x<38&&y>2&&y<12&&`border:solid id=z${J=x-6+(y-3)*32}  onclick=N[${J}]=!N[${J}]`}>${I==46?`pitch${n}id=p>`:I==82?`ADSR`:I==84?`freq`:x==4&&y>2&&y<12?`${n}id=f${y-3}>`:x==2&&y>2&&y<12?`<input style=width:${cw};margin:7 type=button alt=0 value=◣ id=e${y-3} onclick=e${y-3}.value='◣◢■'[(e${y-3}.alt=+e${y-3}.alt+1)%3]>`:``}</div>`)
+        I=x+y*40
+
+d.write(i+`<textarea id=T style='width:70vw;height:25vh;margin:65vh 0 0 15vw'>`)
+
+f=e=>{
+    ++t
+    for(i=32*9;i--;)
+        this[`z`+i].style.background=`#${(N[i]?143:320)*(i-t&31?1:3)}`
+    setTimeout(f,p.value*50)
+}
+f(t=0)
 
 A=new AudioContext()
-N=[0]//[1,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1]
-//N[42] = 1
 
+//F=[] // frenquencies
+//E=[] // adsr envelope times pitch
 
-// onclick:
-_pitch=4
-_freq=4
-_adsr=-1
-//S=`(p=1<<(t/${_pitch*256}&31))` // before looping?
-for(S=i=0;i<9;i++){
-  n=0
-  for(j=32;j--;)
-    n|=N[i*32+j]&&1<<j
-  console.log(n,n.toString(2))
-  if(n)
-    S=`${i?S+`|(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})`
+Z=e=>{
+  _pitch=4
+  _adsr=-1
+
+  //S=`(p=1<<(t/${_pitch*256}&31))` // before looping?
+  for(S=i=0;i<9;i++){
+    n=0
+    for(j=32;j--;)
+      n|=N[i*32+j]&&1<<j
+    console.log(n,n.toString(2))
+    if(n)
+    S=`${i?S+`|(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${this[`f`+i].value^1?`*`+this[`f`+i].value:''}${this[`e`+i].alt-1?`&t/`+((this[`e`+i].alt-1)*p.value):''})`
+//      S=`${i?S+`|(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${_freq^1?`*`+_freq:''}${_adsr?`&t/`+_adsr*_pitch:''})`
+      //S=`${i?S+`|(p`:`((p=1<<(t/${_pitch*256}&31))`}&${n}&&t${F[i]^1?`*`+F[i]:''}${E[i]?`&t/`+E[i]:''})`
+  }
+  M=eval(`t=>`+S)
+  console.log(S)
 }
-M=eval(`t=>`+S)
-console.log(S)
 
+oninput=Z
 
 with(A.createScriptProcessor(256,T=0,1))
   //console.log(A.sampleRate),
